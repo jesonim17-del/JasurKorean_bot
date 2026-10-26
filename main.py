@@ -1,5 +1,8 @@
+import os
+from threading import Thread
 import random
 import telebot
+from flask import Flask
 from telebot import types
 
 # Твой токен уже на месте!
@@ -345,6 +348,26 @@ def callback_inline(call):
             parse_mode="Markdown",
         )
 
+# Создаем мини-сервер Flask для Render
+app = Flask(__name__)
 
-print("Бот запущен и готов к работе!")
-bot.infinity_polling()
+
+@app.route("/")
+def home():
+  return "Bot is running 24/7!"
+
+
+def run_web():
+  port = int(os.environ.get("PORT", 10000))
+  app.run(host="0.0.0.0", port=port)
+
+
+if __name__ == "__main__":
+  # Запускаем веб-сервер в фоновом потоке
+  web_thread = Thread(target=run_web)
+  web_thread.daemon = True
+  web_thread.start()
+
+  # Запуск твоего бота
+  print("Бот запущен и готов к работе!")
+  bot.infinity_polling()
